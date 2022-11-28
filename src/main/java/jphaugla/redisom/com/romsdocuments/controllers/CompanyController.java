@@ -3,16 +3,12 @@ package jphaugla.redisom.com.romsdocuments.controllers;
 import java.util.Optional;
 import java.util.Set;
 
-import com.redis.om.spring.annotations.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.domain.geo.Metrics;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 import jphaugla.redisom.com.romsdocuments.domain.Company;
 import jphaugla.redisom.com.romsdocuments.repositories.CompanyRepository;
@@ -28,6 +24,7 @@ public class CompanyController {
   Optional<Company> byName(@PathVariable("name") String name) {
     return repository.findOneByName(name);
   }
+
   @GetMapping("near")
   Iterable<Company> byLocationNear(//
                                    @RequestParam("lat") double lat, //
@@ -38,10 +35,31 @@ public class CompanyController {
     // find by tag field, using JRediSearch "native" annotation
 
   }
+
   @GetMapping("tags")
   Iterable<Company> byTags(//
-  @RequestParam("tags") Set<String> tags) {
+                           @RequestParam("tags") Set<String> tags) {
     return repository.findByTags(tags);
   }
+
+  // find by numeric property
+  @GetMapping("noe")
+  Iterable<Company> findByNumberOfEmployees(@RequestParam("noe") int noe) {
+    log.info("in noe getMapping with noe " + String.valueOf(noe));
+    return repository.findByNumberOfEmployeesBetween(noe, noe);
+  }
+
+  // find by numeric property range
+  @GetMapping("rangeEmployee")
+  Iterable<Company> findByNumberOfEmployeesBetween(@RequestParam("noeGT") int noeGT, @RequestParam("noeLT") int noeLT) {
+    return repository.findByNumberOfEmployeesBetween(noeGT, noeLT);
+
+}
+
+  // starting with/ending with
+  @GetMapping("startsWithName")
+  Iterable<Company> findByNameStartingWith(@RequestParam("prefix") String prefix){
+    return repository.findByNameStartingWith(prefix);
+  };
 
 }
